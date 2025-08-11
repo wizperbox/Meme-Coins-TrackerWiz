@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WizperBox Capital - Advanced Trading Platform</title>
+    <title>WizperBox Capital - Meme Coin Trading Platform</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.5.2/dist/web3.min.js"></script>
     <style>
         :root {
             --primary: #1a1f36;
@@ -146,6 +147,7 @@
             display: flex;
             gap: 1.5rem;
             margin-bottom: 2rem;
+            flex-wrap: wrap;
         }
         
         .stat-card {
@@ -153,6 +155,7 @@
             border-radius: 12px;
             padding: 1.5rem;
             flex: 1;
+            min-width: 200px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             border: 1px solid var(--border);
         }
@@ -242,7 +245,7 @@
             gap: 2rem;
         }
         
-        .traders-card, .activity-card {
+        .traders-card, .activity-card, .wallet-card {
             background: var(--card-bg);
             border-radius: 12px;
             padding: 1.5rem;
@@ -349,6 +352,136 @@
         .activity-time {
             color: var(--text-secondary);
             font-size: 0.8rem;
+        }
+        
+        /* Meme Coins Section */
+        .meme-coins {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .coin-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border);
+            transition: transform 0.3s;
+        }
+        
+        .coin-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .coin-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .coin-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 1rem;
+            background: var(--secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        
+        .coin-name {
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+        
+        .coin-symbol {
+            color: var(--text-secondary);
+            margin-left: 0.5rem;
+        }
+        
+        .coin-price {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .coin-change {
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+        
+        /* Wallet Tracker */
+        .wallet-input {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .wallet-input input {
+            flex: 1;
+            background: var(--secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.8rem 1rem;
+            color: var(--text);
+            font-size: 1rem;
+        }
+        
+        .wallet-input button {
+            background: var(--accent);
+            color: var(--primary);
+            border: none;
+            border-radius: 8px;
+            padding: 0 1.5rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .wallet-info {
+            margin-top: 1.5rem;
+        }
+        
+        .wallet-balance {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        
+        .wallet-transactions {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .transaction-item {
+            padding: 0.8rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+        
+        .transaction-type {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-right: 0.5rem;
+        }
+        
+        .transaction-buy {
+            background: rgba(0, 198, 167, 0.2);
+            color: var(--success);
+        }
+        
+        .transaction-sell {
+            background: rgba(255, 77, 125, 0.2);
+            color: var(--danger);
         }
         
         /* Footer */
@@ -473,14 +606,14 @@
         
         <nav class="nav-links">
             <a href="#"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="#"><i class="fas fa-coins"></i> Meme Coins</a>
+            <a href="#"><i class="fas fa-wallet"></i> Wallets</a>
             <a href="#"><i class="fas fa-users"></i> Top Traders</a>
-            <a href="#"><i class="fas fa-exchange-alt"></i> Copy Trading</a>
-            <a href="#"><i class="fas fa-wallet"></i> Wallet</a>
-            <a href="#"><i class="fas fa-history"></i> History</a>
+            <a href="#"><i class="fas fa-exchange-alt"></i> Trade</a>
         </nav>
         
         <div class="nav-buttons">
-            <button class="btn btn-login">Login</button>
+            <button class="btn btn-login">Connect Wallet</button>
             <button class="btn btn-signup">Sign Up</button>
         </div>
     </header>
@@ -488,35 +621,35 @@
     <!-- Main Content -->
     <div class="container">
         <div class="dashboard-header">
-            <h1 class="dashboard-title">Trading Dashboard</h1>
+            <h1 class="dashboard-title">Meme Coin Dashboard</h1>
             <div class="chart-actions">
-                <button class="chart-btn active">1D</button>
+                <button class="chart-btn active">1H</button>
+                <button class="chart-btn">1D</button>
                 <button class="chart-btn">1W</button>
                 <button class="chart-btn">1M</button>
-                <button class="chart-btn">1Y</button>
             </div>
         </div>
         
         <div class="dashboard-stats">
             <div class="stat-card">
-                <div class="stat-title">Portfolio Value</div>
+                <div class="stat-title">Total Portfolio Value</div>
                 <div class="stat-value">$42,568.23</div>
                 <div class="stat-change positive">
                     <i class="fas fa-arrow-up"></i> $1,245.60 (3.01%) Today
                 </div>
             </div>
             <div class="stat-card">
-                <div class="stat-title">Active Trades</div>
-                <div class="stat-value">24</div>
+                <div class="stat-title">Meme Coin Dominance</div>
+                <div class="stat-value">64.2%</div>
                 <div class="stat-change negative">
-                    <i class="fas fa-arrow-down"></i> 2 from yesterday
+                    <i class="fas fa-arrow-down"></i> 2.4% from yesterday
                 </div>
             </div>
             <div class="stat-card">
-                <div class="stat-title">Copied Traders</div>
-                <div class="stat-value">8</div>
+                <div class="stat-title">Active Trades</div>
+                <div class="stat-value">24</div>
                 <div class="stat-change positive">
-                    <i class="fas fa-arrow-up"></i> 1 new trader
+                    <i class="fas fa-arrow-up"></i> 5 new trades
                 </div>
             </div>
             <div class="stat-card">
@@ -528,109 +661,153 @@
             </div>
         </div>
         
+        <!-- Meme Coins Section -->
+        <div class="chart-container">
+            <div class="chart-header">
+                <h2 class="chart-title">Top Meme Coins</h2>
+                <div class="chart-actions">
+                    <button class="chart-btn">All</button>
+                    <button class="chart-btn">Solana</button>
+                    <button class="chart-btn">Ethereum</button>
+                </div>
+            </div>
+            <div class="meme-coins">
+                <div class="coin-card">
+                    <div class="coin-header">
+                        <div class="coin-icon">🐶</div>
+                        <div>
+                            <div class="coin-name">Dogecoin <span class="coin-symbol">DOGE</span></div>
+                        </div>
+                    </div>
+                    <div class="coin-price">$0.1268</div>
+                    <div class="coin-change positive">
+                        <i class="fas fa-arrow-up"></i> 8.24% (1H)
+                    </div>
+                </div>
+                
+                <div class="coin-card">
+                    <div class="coin-header">
+                        <div class="coin-icon">😺</div>
+                        <div>
+                            <div class="coin-name">Catcoin <span class="coin-symbol">CAT</span></div>
+                        </div>
+                    </div>
+                    <div class="coin-price">$0.000045</div>
+                    <div class="coin-change negative">
+                        <i class="fas fa-arrow-down"></i> 3.12% (1H)
+                    </div>
+                </div>
+                
+                <div class="coin-card">
+                    <div class="coin-header">
+                        <div class="coin-icon">🐸</div>
+                        <div>
+                            <div class="coin-name">Pepe <span class="coin-symbol">PEPE</span></div>
+                        </div>
+                    </div>
+                    <div class="coin-price">$0.00000123</div>
+                    <div class="coin-change positive">
+                        <i class="fas fa-arrow-up"></i> 15.67% (1H)
+                    </div>
+                </div>
+                
+                <div class="coin-card">
+                    <div class="coin-header">
+                        <div class="coin-icon">🐔</div>
+                        <div>
+                            <div class="coin-name">Chicken <span class="coin-symbol">CHKN</span></div>
+                        </div>
+                    </div>
+                    <div class="coin-price">$0.00087</div>
+                    <div class="coin-change positive">
+                        <i class="fas fa-arrow-up"></i> 42.15% (1H)
+                    </div>
+                </div>
+            </div>
+        </div>
+        
         <div class="dashboard-content">
             <div class="chart-container">
                 <div class="chart-header">
                     <h2 class="chart-title">Portfolio Performance</h2>
                     <div class="chart-actions">
-                        <button class="chart-btn">Stocks</button>
-                        <button class="chart-btn">Crypto</button>
-                        <button class="chart-btn">Forex</button>
+                        <button class="chart-btn">DOGE</button>
+                        <button class="chart-btn">PEPE</button>
+                        <button class="chart-btn">SHIB</button>
                     </div>
                 </div>
                 <canvas id="performanceChart" class="chart-canvas"></canvas>
             </div>
             
             <div class="side-cards">
+                <div class="wallet-card">
+                    <h2 class="card-title">Wallet Tracker</h2>
+                    <div class="wallet-input">
+                        <input type="text" placeholder="Enter wallet address" id="walletAddress">
+                        <button id="trackWallet">Track</button>
+                    </div>
+                    <div class="wallet-info">
+                        <div class="stat-title">Total Balance</div>
+                        <div class="wallet-balance">$12,450.36</div>
+                        <div class="stat-title">Recent Transactions</div>
+                        <div class="wallet-transactions">
+                            <div class="transaction-item">
+                                <span class="transaction-type transaction-buy">BUY</span>
+                                <span>2,500,000 PEPE</span>
+                                <div class="activity-time">5 min ago</div>
+                            </div>
+                            <div class="transaction-item">
+                                <span class="transaction-type transaction-sell">SELL</span>
+                                <span>150,000 DOGE</span>
+                                <div class="activity-time">27 min ago</div>
+                            </div>
+                            <div class="transaction-item">
+                                <span class="transaction-type transaction-buy">BUY</span>
+                                <span>85,000,000 SHIB</span>
+                                <div class="activity-time">1 hour ago</div>
+                            </div>
+                            <div class="transaction-item">
+                                <span class="transaction-type transaction-buy">BUY</span>
+                                <span>5,000,000 CAT</span>
+                                <div class="activity-time">2 hours ago</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="traders-card">
-                    <h2 class="card-title">Top Traders to Follow</h2>
+                    <h2 class="card-title">Top Traders Activity</h2>
                     <div class="trader-item">
                         <div class="trader-avatar">MJ</div>
                         <div class="trader-info">
                             <div class="trader-name">Mark Johnson</div>
-                            <div class="trader-stats">
-                                <div class="trader-stat">Profit: <span class="positive">+24.7%</span></div>
-                                <div class="trader-stat">Win Rate: <span>82%</span></div>
-                            </div>
+                            <div class="activity-desc">Bought 500,000 PEPE @ $0.00000118</div>
                         </div>
-                        <button class="trader-follow">Follow</button>
+                        <button class="trader-follow">Copy</button>
                     </div>
                     <div class="trader-item">
                         <div class="trader-avatar">SP</div>
                         <div class="trader-info">
                             <div class="trader-name">Sarah Parker</div>
-                            <div class="trader-stats">
-                                <div class="trader-stat">Profit: <span class="positive">+18.2%</span></div>
-                                <div class="trader-stat">Win Rate: <span>78%</span></div>
-                            </div>
+                            <div class="activity-desc">Sold 1,200,000 DOGE @ $0.128</div>
                         </div>
-                        <button class="trader-follow">Follow</button>
+                        <button class="trader-follow">Copy</button>
                     </div>
                     <div class="trader-item">
                         <div class="trader-avatar">RT</div>
                         <div class="trader-info">
                             <div class="trader-name">Robert Turner</div>
-                            <div class="trader-stats">
-                                <div class="trader-stat">Profit: <span class="positive">+32.1%</span></div>
-                                <div class="trader-stat">Win Rate: <span>89%</span></div>
-                            </div>
+                            <div class="activity-desc">Bought 25,000,000 SHIB @ $0.0000087</div>
                         </div>
-                        <button class="trader-follow">Follow</button>
+                        <button class="trader-follow">Copy</button>
                     </div>
                     <div class="trader-item">
                         <div class="trader-avatar">ED</div>
                         <div class="trader-info">
                             <div class="trader-name">Emma Davis</div>
-                            <div class="trader-stats">
-                                <div class="trader-stat">Profit: <span class="positive">+15.6%</span></div>
-                                <div class="trader-stat">Win Rate: <span>76%</span></div>
-                            </div>
+                            <div class="activity-desc">Bought 8,500,000 CAT @ $0.000042</div>
                         </div>
-                        <button class="trader-follow">Follow</button>
-                    </div>
-                </div>
-                
-                <div class="activity-card">
-                    <h2 class="card-title">Recent Activity</h2>
-                    <div class="activity-item">
-                        <div class="activity-icon">
-                            <i class="fas fa-sync-alt"></i>
-                        </div>
-                        <div class="activity-info">
-                            <div class="activity-title">Trade Copied</div>
-                            <div class="activity-desc">Copied Mark Johnson's AAPL trade</div>
-                        </div>
-                        <div class="activity-time">10:24 AM</div>
-                    </div>
-                    <div class="activity-item">
-                        <div class="activity-icon">
-                            <i class="fas fa-arrow-up"></i>
-                        </div>
-                        <div class="activity-info">
-                            <div class="activity-title">Stock Sold</div>
-                            <div class="activity-desc">Sold 20 shares of MSFT</div>
-                        </div>
-                        <div class="activity-time">9:45 AM</div>
-                    </div>
-                    <div class="activity-item">
-                        <div class="activity-icon">
-                            <i class="fas fa-arrow-down"></i>
-                        </div>
-                        <div class="activity-info">
-                            <div class="activity-title">Stock Bought</div>
-                            <div class="activity-desc">Bought 15 shares of TSLA</div>
-                        </div>
-                        <div class="activity-time">Yesterday</div>
-                    </div>
-                    <div class="activity-item">
-                        <div class="activity-icon">
-                            <i class="fas fa-user-plus"></i>
-                        </div>
-                        <div class="activity-info">
-                            <div class="activity-title">Trader Followed</div>
-                            <div class="activity-desc">Started following Sarah Parker</div>
-                        </div>
-                        <div class="activity-time">Yesterday</div>
+                        <button class="trader-follow">Copy</button>
                     </div>
                 </div>
             </div>
@@ -643,14 +820,14 @@
             <div class="footer-column">
                 <div class="footer-logo">WizperBox Capital</div>
                 <p class="footer-desc">
-                    Advanced trading platform for copy trading and portfolio management. 
-                    Follow top traders, automate your investments, and maximize your profits.
+                    Advanced meme coin tracking and trading platform. 
+                    Monitor top wallets, follow leading traders, and maximize your profits in the volatile meme coin market.
                 </p>
                 <div class="social-links">
                     <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
-                    <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
-                    <a href="#" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-telegram"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-discord"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-reddit"></i></a>
                 </div>
             </div>
             
@@ -658,20 +835,20 @@
                 <h3 class="footer-title">Platform</h3>
                 <div class="footer-links">
                     <a href="#">Dashboard</a>
+                    <a href="#">Meme Coins</a>
+                    <a href="#">Wallet Tracker</a>
                     <a href="#">Top Traders</a>
-                    <a href="#">Copy Trading</a>
-                    <a href="#">Portfolio</a>
-                    <a href="#">Analytics</a>
+                    <a href="#">Trading Terminal</a>
                 </div>
             </div>
             
             <div class="footer-column">
                 <h3 class="footer-title">Resources</h3>
                 <div class="footer-links">
-                    <a href="#">Help Center</a>
-                    <a href="#">Tutorials</a>
-                    <a href="#">Market News</a>
-                    <a href="#">Webinars</a>
+                    <a href="#">Market Analysis</a>
+                    <a href="#">Trader Rankings</a>
+                    <a href="#">API Documentation</a>
+                    <a href="#">Educational Content</a>
                     <a href="#">Community</a>
                 </div>
             </div>
@@ -689,7 +866,7 @@
         </div>
         
         <div class="copyright">
-            &copy; 2023 WizperBox Capital. All rights reserved.
+            &copy; 2023 WizperBox Capital. All rights reserved. Crypto trading involves significant risk.
         </div>
     </footer>
     
@@ -704,7 +881,7 @@
         
         for (let i = 0; i < 30; i++) {
             labels.push(`Day ${i+1}`);
-            const change = (Math.random() - 0.5) * 1000;
+            const change = (Math.random() - 0.3) * 800;
             currentValue += change;
             dataPoints.push(currentValue);
         }
@@ -754,7 +931,67 @@
             }
         });
         
-        // Handle time period buttons
+        // Simulate live price updates
+        function updateMemeCoinPrices() {
+            document.querySelectorAll('.coin-card').forEach(card => {
+                const priceElement = card.querySelector('.coin-price');
+                const changeElement = card.querySelector('.coin-change');
+                
+                // Extract current price
+                let currentPrice = parseFloat(priceElement.textContent.replace('$', ''));
+                
+                // Generate random change (-5% to +15%)
+                const changePercent = (Math.random() * 20 - 5).toFixed(2);
+                const changeAmount = currentPrice * (changePercent / 100);
+                
+                // Update price
+                const newPrice = currentPrice + changeAmount;
+                priceElement.textContent = '$' + newPrice.toFixed(changePercent > 10 ? 8 : 6);
+                
+                // Update change indicator
+                changeElement.innerHTML = `
+                    <i class="fas fa-arrow-${changePercent > 0 ? 'up' : 'down'}"></i> 
+                    ${Math.abs(changePercent)}% (1H)
+                `;
+                changeElement.className = `coin-change ${changePercent > 0 ? 'positive' : 'negative'}`;
+            });
+        }
+        
+        // Update prices every 10 seconds
+        setInterval(updateMemeCoinPrices, 10000);
+        
+        // Simulate trader activity
+        function simulateTraderActivity() {
+            const traders = [
+                { name: 'Mark Johnson', action: 'Bought', coin: 'PEPE', amount: '500,000', price: '$0.00000118' },
+                { name: 'Sarah Parker', action: 'Sold', coin: 'DOGE', amount: '1,200,000', price: '$0.128' },
+                { name: 'Robert Turner', action: 'Bought', coin: 'SHIB', amount: '25,000,000', price: '$0.0000087' },
+                { name: 'Emma Davis', action: 'Bought', coin: 'CAT', amount: '8,500,000', price: '$0.000042' }
+            ];
+            
+            const traderItems = document.querySelectorAll('.trader-item');
+            traderItems.forEach((item, index) => {
+                const trader = traders[index];
+                const descElement = item.querySelector('.activity-desc');
+                descElement.textContent = `${trader.action} ${trader.amount} ${trader.coin} @ ${trader.price}`;
+            });
+        }
+        
+        // Update trader activity every 30 seconds
+        setInterval(simulateTraderActivity, 30000);
+        
+        // Wallet tracking functionality
+        document.getElementById('trackWallet').addEventListener('click', function() {
+            const walletAddress = document.getElementById('walletAddress').value;
+            if (walletAddress) {
+                alert(`Tracking wallet: ${walletAddress}\n\nIn a real implementation, this would connect to blockchain APIs to fetch wallet data.`);
+                // Here you would connect to Etherscan, BscScan, etc. APIs
+            } else {
+                alert('Please enter a wallet address');
+            }
+        });
+        
+        // Time period buttons
         const timeButtons = document.querySelectorAll('.chart-btn');
         timeButtons.forEach(button => {
             button.addEventListener('click', function() {
@@ -763,19 +1000,24 @@
             });
         });
         
-        // Handle follow buttons
-        const followButtons = document.querySelectorAll('.trader-follow');
-        followButtons.forEach(button => {
+        // Copy trade functionality
+        const copyButtons = document.querySelectorAll('.trader-follow');
+        copyButtons.forEach(button => {
             button.addEventListener('click', function() {
-                if (this.textContent === 'Follow') {
-                    this.textContent = 'Following';
-                    this.style.background = 'var(--card-bg)';
-                    this.style.color = 'var(--text)';
-                } else {
-                    this.textContent = 'Follow';
+                const traderName = this.closest('.trader-item').querySelector('.trader-name').textContent;
+                const tradeDesc = this.closest('.trader-item').querySelector('.activity-desc').textContent;
+                
+                alert(`Copied trade from ${traderName}:\n${tradeDesc}\n\nIn a full implementation, this would execute the trade on your connected wallet.`);
+                
+                this.textContent = 'Copied!';
+                this.style.background = 'var(--card-bg)';
+                this.style.color = 'var(--text)';
+                
+                setTimeout(() => {
+                    this.textContent = 'Copy';
                     this.style.background = 'var(--accent)';
                     this.style.color = 'var(--primary)';
-                }
+                }, 3000);
             });
         });
     </script>
